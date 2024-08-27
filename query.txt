@@ -1,0 +1,128 @@
+SELECT p.invention_name, p.patent_number
+FROM patents p
+JOIN purchases pu ON p.patent_id = pu.patent_id
+WHERE pu.company_id = 2 AND p.invention_name LIKE '%Wireless%';
+
+SELECT DISTINCT i.name
+FROM inventors i
+JOIN inventors_contracts ic ON i.inventor_id = ic.inventor_id
+JOIN companies c ON ic.company_id = c.company_id
+WHERE c.address LIKE '%j%';
+
+SELECT c.name
+FROM companies c
+JOIN purchases pu ON c.company_id = pu.company_id
+WHERE pu.purchase_date BETWEEN '2020-01-01' AND '2023-01-31';
+
+SELECT i.name, p.patent_number
+FROM inventors i
+JOIN patents p ON i.inventor_id = p.inventor_id
+WHERE p.patent_date BETWEEN '2023-12-01' AND '2024-12-31';
+
+SELECT i.name
+FROM inventors i
+JOIN patents p ON i.inventor_id = p.inventor_id
+JOIN purchases pu ON p.patent_id = pu.patent_id
+WHERE pu.company_id = 8;
+
+SELECT a.name
+FROM assistants a
+JOIN assistants_contracts ac ON a.assistant_id = ac.assistant_id
+JOIN purchases pu ON ac.company_id = pu.company_id
+WHERE pu.patent_id IN (1, 2, 3, 4, 5);
+
+SELECT c.name, pu.purchase_date
+FROM companies c
+JOIN purchases pu ON c.company_id = pu.company_id
+WHERE pu.purchase_date BETWEEN '2021-01-01' AND '2023-01-31';
+
+SELECT i.name, p.patent_date
+FROM inventors i
+JOIN patents p ON i.inventor_id = p.inventor_id
+WHERE p.patent_date > '2022-06-30';
+
+
+SELECT DISTINCT c.name AS company_name, i.name AS inventor_name
+FROM companies c
+JOIN inventors_contracts ic ON c.company_id = ic.company_id
+JOIN inventors i ON ic.inventor_id = i.inventor_id;
+
+
+SELECT i.name, p.patent_date
+FROM inventors i
+JOIN patents p ON i.inventor_id = p.inventor_id
+WHERE p.patent_number BETWEEN 'US3456789A' AND 'US8901234A';
+
+
+SELECT c.name, COUNT(pu.patent_id) AS num_purchases
+FROM companies c
+JOIN purchases pu ON c.company_id = pu.company_id
+GROUP BY c.name
+HAVING num_purchases >1;
+
+
+SELECT DISTINCT i.name, ac.contract_date
+FROM inventors i
+JOIN assistants_contracts ac ON i.inventor_id = ac.assistant_id
+JOIN companies c ON ac.company_id = c.company_id
+WHERE c.address LIKE '%Creative %';
+
+
+SELECT c.name, pu.purchase_date
+FROM companies c
+JOIN purchases pu ON c.company_id = pu.company_id
+WHERE YEAR(pu.purchase_date) IN (2023, 2022);
+
+
+SELECT i.name, ic.contract_date
+FROM inventors_contracts ic
+JOIN inventors i ON ic.inventor_id = i.inventor_id
+WHERE YEAR(ic.contract_date) = 2020;
+
+
+SELECT ic.contract_date, c.name
+FROM inventors_contracts ic
+JOIN companies c ON ic.company_id = c.company_id
+JOIN inventors i ON ic.inventor_id = i.inventor_id
+WHERE i.name LIKE '%Smith%';
+
+
+SELECT p.patent_number, ic.contract_date
+FROM inventors_contracts ic
+JOIN patents p ON ic.patent_id = p.patent_id
+JOIN companies c ON ic.company_id = c.company_id
+WHERE ic.contract_date < '2021-01-01' AND c.name LIKE 'Innov%';
+
+
+SELECT i.name, p.patent_number
+FROM inventors_contracts ic
+JOIN patents p ON ic.patent_id = p.patent_id
+JOIN inventors i ON ic.inventor_id = i.inventor_id
+JOIN purchases pu ON p.patent_id = pu.patent_id
+WHERE YEAR(pu.purchase_date) = 2023;
+
+SELECT c.name, ic.contract_date
+FROM inventors_contracts ic
+JOIN companies c ON ic.company_id = c.company_id
+WHERE ic.inventor_id > 10;
+
+SELECT c.name AS company_name, COUNT(p.purchase_id) AS total_patents_purchased
+FROM purchases p
+JOIN companies c ON p.company_id = c.company_id
+GROUP BY c.name;
+
+SELECT c.name AS company_name, COUNT(ac.cta_id) AS total_assistant_contracts
+FROM assistants_contracts ac
+JOIN companies c ON ac.company_id = c.company_id
+GROUP BY c.name;
+
+SELECT c.name AS company_name, COUNT(ac.cta_id) AS total_assistant_contracts
+FROM assistants_contracts ac
+JOIN companies c ON ac.company_id = c.company_id
+GROUP BY c.name
+HAVING COUNT(ac.cta_id) < 3;
+
+SELECT c.company_id, COUNT(ic.contract_id) AS number_of_inventor_contracts
+FROM companies c
+JOIN inventors_contracts ic ON c.company_id = ic.company_id
+GROUP BY c.company_id;

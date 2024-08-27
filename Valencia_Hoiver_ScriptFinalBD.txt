@@ -1,0 +1,414 @@
+
+
+-- -----------------------------------------------------
+-- Table `patentoffice`.`inventors`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `patentoffice`.`inventors` (
+  `inventor_id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL,
+  `identification_number` VARCHAR(255) NOT NULL,
+  `address` VARCHAR(255) NOT NULL,
+  `phone_number` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`inventor_id`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 21
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `patentoffice`.`assistants`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `patentoffice`.`assistants` (
+  `assistant_id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL,
+  `address` VARCHAR(255) NOT NULL,
+  `phone_number` VARCHAR(255) NOT NULL,
+  `identification_number` VARCHAR(255) NOT NULL,
+  `inventor_id` INT NOT NULL,
+  PRIMARY KEY (`assistant_id`),
+  INDEX `assistants_invertor_idx` (`inventor_id` ASC) VISIBLE,
+  CONSTRAINT `assistants_invertor`
+    FOREIGN KEY (`inventor_id`)
+    REFERENCES `patentoffice`.`inventors` (`inventor_id`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 21
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `patentoffice`.`companies`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `patentoffice`.`companies` (
+  `company_id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL,
+  `address` VARCHAR(255) NOT NULL,
+  `phone_numbers` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`company_id`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 21
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `patentoffice`.`assistants_contracts`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `patentoffice`.`assistants_contracts` (
+  `cta_id` INT NOT NULL AUTO_INCREMENT,
+  `contract_date` TIMESTAMP NOT NULL,
+  `company_id` INT NOT NULL,
+  `assistant_id` INT NOT NULL,
+  PRIMARY KEY (`cta_id`),
+  INDEX `assistants_Contracts_company_idx` (`company_id` ASC) VISIBLE,
+  INDEX `assistants_Contracts_assistant_idx` (`assistant_id` ASC) VISIBLE,
+  CONSTRAINT `assistants_Contracts_assistant`
+    FOREIGN KEY (`assistant_id`)
+    REFERENCES `patentoffice`.`assistants` (`assistant_id`),
+  CONSTRAINT `assistants_Contracts_company`
+    FOREIGN KEY (`company_id`)
+    REFERENCES `patentoffice`.`companies` (`company_id`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 21
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `patentoffice`.`patents`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `patentoffice`.`patents` (
+  `patent_id` INT NOT NULL AUTO_INCREMENT,
+  `patent_number` VARCHAR(255) NOT NULL,
+  `invention_name` VARCHAR(255) NOT NULL,
+  `patent_date` TIMESTAMP NOT NULL,
+  `inventor_id` INT NOT NULL,
+  PRIMARY KEY (`patent_id`),
+  INDEX `patents_inventor_idx` (`inventor_id` ASC) VISIBLE,
+  CONSTRAINT `patents_inventor`
+    FOREIGN KEY (`inventor_id`)
+    REFERENCES `patentoffice`.`inventors` (`inventor_id`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 21
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `patentoffice`.`inventors_contracts`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `patentoffice`.`inventors_contracts` (
+  `contract_id` INT NOT NULL AUTO_INCREMENT,
+  `contract_date` DATE NOT NULL,
+  `company_id` INT NOT NULL,
+  `inventor_id` INT NOT NULL,
+  `patent_id` INT NOT NULL,
+  PRIMARY KEY (`contract_id`),
+  INDEX `company_id` (`company_id` ASC) VISIBLE,
+  INDEX `inventor_id` (`inventor_id` ASC) VISIBLE,
+  INDEX `patent_id` (`patent_id` ASC) VISIBLE,
+  CONSTRAINT `inventors_contracts_ibfk_1`
+    FOREIGN KEY (`company_id`)
+    REFERENCES `patentoffice`.`companies` (`company_id`),
+  CONSTRAINT `inventors_contracts_ibfk_2`
+    FOREIGN KEY (`inventor_id`)
+    REFERENCES `patentoffice`.`inventors` (`inventor_id`),
+  CONSTRAINT `inventors_contracts_ibfk_3`
+    FOREIGN KEY (`patent_id`)
+    REFERENCES `patentoffice`.`patents` (`patent_id`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 21
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `patentoffice`.`purchases`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `patentoffice`.`purchases` (
+  `purchase_id` INT NOT NULL AUTO_INCREMENT,
+  `patent_number` VARCHAR(255) NOT NULL,
+  `purchase_date` TIMESTAMP NOT NULL,
+  `company_id` INT NOT NULL,
+  `patent_id` INT NOT NULL,
+  PRIMARY KEY (`purchase_id`),
+  INDEX `purchases_patent_idx` (`patent_id` ASC) VISIBLE,
+  INDEX `purchases_company_idx` (`company_id` ASC) VISIBLE,
+  CONSTRAINT `purchases_company`
+    FOREIGN KEY (`company_id`)
+    REFERENCES `patentoffice`.`companies` (`company_id`),
+  CONSTRAINT `purchases_patent`
+    FOREIGN KEY (`patent_id`)
+    REFERENCES `patentoffice`.`patents` (`patent_id`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 21
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+
+
+
+
+SELECT p.invention_name, p.patent_number
+FROM patents p
+JOIN purchases pu ON p.patent_id = pu.patent_id
+WHERE pu.company_id = 2 AND p.invention_name LIKE '%Wireless%';
+
+SELECT DISTINCT i.name
+FROM inventors i
+JOIN inventors_contracts ic ON i.inventor_id = ic.inventor_id
+JOIN companies c ON ic.company_id = c.company_id
+WHERE c.address LIKE '%j%';
+
+SELECT c.name
+FROM companies c
+JOIN purchases pu ON c.company_id = pu.company_id
+WHERE pu.purchase_date BETWEEN '2020-01-01' AND '2023-01-31';
+
+SELECT i.name, p.patent_number
+FROM inventors i
+JOIN patents p ON i.inventor_id = p.inventor_id
+WHERE p.patent_date BETWEEN '2023-12-01' AND '2024-12-31';
+
+SELECT i.name
+FROM inventors i
+JOIN patents p ON i.inventor_id = p.inventor_id
+JOIN purchases pu ON p.patent_id = pu.patent_id
+WHERE pu.company_id = 8;
+
+SELECT a.name
+FROM assistants a
+JOIN assistants_contracts ac ON a.assistant_id = ac.assistant_id
+JOIN purchases pu ON ac.company_id = pu.company_id
+WHERE pu.patent_id IN (1, 2, 3, 4, 5);
+
+SELECT c.name, pu.purchase_date
+FROM companies c
+JOIN purchases pu ON c.company_id = pu.company_id
+WHERE pu.purchase_date BETWEEN '2021-01-01' AND '2023-01-31';
+
+SELECT i.name, p.patent_date
+FROM inventors i
+JOIN patents p ON i.inventor_id = p.inventor_id
+WHERE p.patent_date > '2022-06-30';
+
+
+SELECT DISTINCT c.name AS company_name, i.name AS inventor_name
+FROM companies c
+JOIN inventors_contracts ic ON c.company_id = ic.company_id
+JOIN inventors i ON ic.inventor_id = i.inventor_id;
+
+
+SELECT i.name, p.patent_date
+FROM inventors i
+JOIN patents p ON i.inventor_id = p.inventor_id
+WHERE p.patent_number BETWEEN 'US3456789A' AND 'US8901234A';
+
+
+SELECT c.name, COUNT(pu.patent_id) AS num_purchases
+FROM companies c
+JOIN purchases pu ON c.company_id = pu.company_id
+GROUP BY c.name
+HAVING num_purchases >1;
+
+
+SELECT DISTINCT i.name, ac.contract_date
+FROM inventors i
+JOIN assistants_contracts ac ON i.inventor_id = ac.assistant_id
+JOIN companies c ON ac.company_id = c.company_id
+WHERE c.address LIKE '%Creative %';
+
+
+SELECT c.name, pu.purchase_date
+FROM companies c
+JOIN purchases pu ON c.company_id = pu.company_id
+WHERE YEAR(pu.purchase_date) IN (2023, 2022);
+
+
+SELECT i.name, ic.contract_date
+FROM inventors_contracts ic
+JOIN inventors i ON ic.inventor_id = i.inventor_id
+WHERE YEAR(ic.contract_date) = 2020;
+
+
+SELECT ic.contract_date, c.name
+FROM inventors_contracts ic
+JOIN companies c ON ic.company_id = c.company_id
+JOIN inventors i ON ic.inventor_id = i.inventor_id
+WHERE i.name LIKE '%Smith%';
+
+
+SELECT p.patent_number, ic.contract_date
+FROM inventors_contracts ic
+JOIN patents p ON ic.patent_id = p.patent_id
+JOIN companies c ON ic.company_id = c.company_id
+WHERE ic.contract_date < '2021-01-01' AND c.name LIKE 'Innov%';
+
+
+SELECT i.name, p.patent_number
+FROM inventors_contracts ic
+JOIN patents p ON ic.patent_id = p.patent_id
+JOIN inventors i ON ic.inventor_id = i.inventor_id
+JOIN purchases pu ON p.patent_id = pu.patent_id
+WHERE YEAR(pu.purchase_date) = 2023;
+
+SELECT c.name, ic.contract_date
+FROM inventors_contracts ic
+JOIN companies c ON ic.company_id = c.company_id
+WHERE ic.inventor_id > 10;
+
+SELECT c.name AS company_name, COUNT(p.purchase_id) AS total_patents_purchased
+FROM purchases p
+JOIN companies c ON p.company_id = c.company_id
+GROUP BY c.name;
+
+SELECT c.name AS company_name, COUNT(ac.cta_id) AS total_assistant_contracts
+FROM assistants_contracts ac
+JOIN companies c ON ac.company_id = c.company_id
+GROUP BY c.name;
+
+SELECT c.name AS company_name, COUNT(ac.cta_id) AS total_assistant_contracts
+FROM assistants_contracts ac
+JOIN companies c ON ac.company_id = c.company_id
+GROUP BY c.name
+HAVING COUNT(ac.cta_id) < 3;
+
+SELECT c.company_id, COUNT(ic.contract_id) AS number_of_inventor_contracts
+FROM companies c
+JOIN inventors_contracts ic ON c.company_id = ic.company_id
+GROUP BY c.company_id;
+
+
+INSERT INTO `patentoffice`.`inventors`(`name`,`identification_number`,`address`,`phone_number`)
+VALUES
+('John Doe', '123456789', '123 Maple Street, Springfield, IL', '+1 312-555-1234'),
+('Jane Smith', '987654321', '456 Oak Avenue, Lincoln, NE', '+1 402-555-5678'),
+('Michael Johnson', '456789123', '789 Pine Road, Chicago, IL', '+1 773-555-9101'),
+('Emily Davis', '234567891', '101 Birch Lane, Madison, WI', '+1 608-555-2345'),
+('William Brown', '567891234', '202 Cedar Street, Milwaukee, WI', '+1 414-555-6789'),
+('Jessica Wilson', '678912345', '303 Elm Court, Green Bay, WI', '+1 920-555-1122'),
+('David Martinez', '345678912', '404 Spruce Avenue, Omaha, NE', '+1 402-555-3344'),
+('Sarah Lee', '789123456', '505 Redwood Blvd, Des Moines, IA', '+1 515-555-5566'),
+('Christopher Taylor', '891234567', '606 Aspen Drive, Minneapolis, MN', '+1 612-555-7788'),
+('Sophia Anderson', '912345678', '707 Cypress Way, St. Paul, MN', '+1 651-555-9900');
+
+INSERT INTO `patentoffice`.`patents`(`patent_number`,`invention_name`,`patent_date`,`inventor_id`)
+VALUES
+('US1234567A', 'Smart Home Automation System', '2024-01-15', 1),
+('US2345678A', 'Wireless Charging Pad', '2024-02-20', 2),
+('US3456789A', 'Augmented Reality Glasses', '2024-03-05', 3),
+('US4567890A', 'Electric Vehicle Battery', '2024-04-10', 4),
+('US5678901A', 'Advanced Water Filtration System', '2024-05-22', 5),
+('US6789012A', 'AI-Powered Personal Assistant', '2024-06-18', 6),
+('US7890123A', 'Biodegradable Packaging Material', '2024-07-25', 7),
+('US8901234A', 'High-Efficiency Solar Panel', '2024-08-12', 8),
+('US9012345A', 'Wearable Health Monitoring Device', '2024-09-30', 9),
+('US0123456A', 'Noise-Canceling Headphones', '2024-10-05', 10);
+
+INSERT INTO `patentoffice`.`assistants`(`name`,`address`,`phone_number`,`identification_number`,`inventor_id`)
+VALUES
+('Sophia Garcia', '123 Maple St, San Francisco, CA 94102', '415-555-1234', '845678901', 1),
+('Liam Johnson', '456 Oak Ave, Los Angeles, CA 90001', '323-555-2345', '945678902', 2),
+('Mia Rodriguez', '789 Pine Blvd, New York, NY 10001', '212-555-3456', '845678903', 3),
+('Noah Martinez', '321 Cedar Ln, Miami, FL 33101', '305-555-4567', '845678904', 4),
+('Emma Hernandez', '654 Birch Rd, Chicago, IL 60601', '312-555-5678', '945678905', 5),
+('William Davis', '987 Spruce Dr, Houston, TX 77001', '713-555-6789', '945678906', 6),
+('Isabella Brown', '246 Elm St, Boston, MA 02101', '617-555-7890', '845678907', 7),
+('James Wilson', '135 Willow Ave, Seattle, WA 98101', '206-555-8901', '945678908', 8),
+('Olivia Taylor', '753 Aspen Ct, Denver, CO 80201', '303-555-9012', '845678909', 9),
+('Benjamin Moore', '159 Fir St, Atlanta, GA 30301', '404-555-0123', '945678910', 10);
+
+
+INSERT INTO `patentoffice`.`companies`(`name`, `address`, `phone_numbers`)
+VALUES
+('Tech Innovators Inc.', '500 Technology Drive, San Jose, CA 95110', '408-555-0101'),
+('Future Vision Ltd.', '123 Innovation Blvd, Austin, TX 78701', '512-555-0202'),
+('Pioneer Technologies', '2000 Pioneer Rd, Mountain View, CA 94043', '650-555-0303'),
+('Creative Solutions LLC', '456 Creative Way, Los Angeles, CA 90015', '213-555-0404'),
+('Invention Hub Corp.', '789 Inventor Lane, Boston, MA 02115', '617-555-0505'),
+('Global Patents Group', '100 International Ave, New York, NY 10022', '212-555-0606'),
+('Bright Ideas Co.', '321 Innovation Dr, San Francisco, CA 94103', '415-555-0707'),
+('Innovation Masters Inc.', '654 Discovery Blvd, Palo Alto, CA 94304', '650-555-0808'),
+('Advanced Concepts LLC', '987 Future St, Seattle, WA 98109', '206-555-0909'),
+('NextGen Solutions', '159 Modern Ave, Miami, FL 33101', '305-555-1010');
+
+
+
+INSERT INTO `patentoffice`.`inventors_contracts`
+(`contract_date`, `company_id`, `inventor_id`, `patent_id`)
+VALUES
+('2019-01-15', 1, 1, 1),
+('2019-03-22', 2, 2, 2),
+('2019-05-10', 3, 3, 3),
+('2019-07-30', 4, 4, 4),
+('2019-09-15', 5, 5, 5),
+('2020-02-20', 6, 6, 6),
+('2020-04-25', 7, 7, 7),
+('2020-06-15', 8, 8, 8),
+('2020-08-12', 9, 9, 9),
+('2020-10-30', 10, 10, 10),
+('2021-01-15', 11, 11, 11),
+('2021-03-05', 12, 12, 12),
+('2021-06-10', 13, 13, 13),
+('2021-08-25', 14, 14, 14),
+('2021-11-10', 15, 15, 15),
+('2022-01-22', 16, 16, 16),
+('2022-04-15', 17, 17, 17),
+('2022-07-30', 18, 18, 18),
+('2022-09-12', 19, 19, 19),
+('2022-12-05', 20, 20, 20);
+
+
+
+
+INSERT INTO `patentoffice`.`assistants_contracts`
+(`contract_date`, `company_id`, `assistant_id`)
+VALUES
+('2023-01-15', 1, 1),
+('2023-02-20', 2, 2),
+('2023-03-25', 3, 3),
+('2023-04-30', 4, 4),
+('2023-05-15', 5, 5),
+('2023-06-10', 6, 6),
+('2023-07-20', 7, 7),
+('2023-08-25', 8, 8),
+('2023-09-15', 9, 9),
+('2023-10-30', 10, 10),
+('2024-01-05', 1, 11),
+('2024-02-15', 2, 12),
+('2024-03-10', 3, 13),
+('2024-04-20', 4, 14),
+('2024-05-25', 5, 15),
+('2024-06-15', 6, 16),
+('2024-07-30', 7, 17),
+('2024-08-20', 8, 18),
+('2024-09-25', 9, 19),
+('2024-10-10', 10, 20);
+
+
+
+INSERT INTO `patentoffice`.`purchases`
+(`patent_number`, `purchase_date`, `company_id`, `patent_id`)
+VALUES
+('PN0001', '2023-01-15', 1, 1),
+('PN0002', '2023-02-20', 2, 2),
+('PN0003', '2023-03-25', 3, 3),
+('PN0004', '2023-04-30', 4, 4),
+('PN0005', '2023-05-15', 5, 5),
+('PN0006', '2023-06-10', 6, 6),
+('PN0007', '2023-07-20', 7, 7),
+('PN0008', '2023-08-25', 8, 8),
+('PN0009', '2023-09-15', 9, 9),
+('PN0010', '2023-10-30', 10, 10),
+('PN0011', '2024-01-05', 1, 11),
+('PN0012', '2024-02-15', 2, 12),
+('PN0013', '2024-03-10', 3, 13),
+('PN0014', '2024-04-20', 4, 14),
+('PN0015', '2024-05-25', 5, 15),
+('PN0016', '2024-06-15', 6, 16),
+('PN0017', '2024-07-30', 7, 17),
+('PN0018', '2024-08-20', 8, 18),
+('PN0019', '2024-09-25', 9, 19),
+('PN0020', '2024-10-10', 10, 20);
